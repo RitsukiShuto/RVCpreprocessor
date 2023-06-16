@@ -10,45 +10,41 @@ import os
 
 class SplitWav:
     def __init__(self):
-        self.files = read_wav_file()
+        self.files = self.readWavFile()
 
         # ファイルの命名規則
-        self.save_dir = 'out\\'
-        self.out_base_name = 'ANG'
+        self.save_dir = 'out/'
 
     # 渡された音声ファイルを無音区間で分割する
-    def remove_silence(self):
-        print(self.files)
-
+    def removeSilence(self):
         for file in (self.files):
+            print('processing: ' + file + '...')
+
             # 音声ファイルの読み込み
+            basename = os.path.splitext(os.path.basename(file))[0]
             sound = AudioSegment.from_mp3(file)
-            org_ms = len(sound)
 
             # 無音区間の検出
             chunks = split_on_silence(sound, min_silence_len = 100, silence_thresh = -55, keep_silence = 100)
-            removed_sound = AudioSegment.empty()
 
-            for chunk in chunks:
-                removed_sound += chunk
+            for i, chunk in enumerate(chunks):
+                # ファイルの保存
+                self.saveWav(chunk, basename, i)
 
-            # ファイルの保存
-            self.save_wav(removed_sound, org_ms)
-
-    def save_wav(self, snd, org_ms):
+    def saveWav(self, chunk, basename, i):
         # ファイル名の設定
-        out_file_name = self.out_base_name + '_' + str(snd)
+        out_file_name =  basename + '_' + str(i+1) + '.mp3'
 
         # ファイルの保存
-        snd.export(self.save_dir + out_file_name, format = 'mp3')
+        chunk.export(self.save_dir + out_file_name, format = 'mp3')
 
         # DEBUG
-        print('removed: {:.2f} [min]'.format(org_ms/60/1000))
+        print('saved: ' + out_file_name + '.mp3' + ' (' + str(len(chunk)) + 'ms)')
 
-def read_wav_file():
-    try:
-        return glob.glob(os.path.join("sndSource", "*.mp3"))
+    def readWavFile(self):
+        try:
+            return glob.glob(os.path.join("sndSource", "*.mp3"))
 
-    except:
-        print('Error: ファイルの読み込みに失敗しました。')
-        sys.exit()
+        except:
+            print('Error: ファイルの読み込みに失敗しました。')
+            sys.exit()
