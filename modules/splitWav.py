@@ -25,24 +25,33 @@ class SplitWav:
             sound = AudioSegment.from_mp3(file)
 
             # 無音区間の検出
-            chunks = split_on_silence(sound, min_silence_len = 100, silence_thresh = -55, keep_silence = 100)
+            chunks = split_on_silence(
+                                    sound,
+                                    min_silence_len = 500,      # ms以上の無音区間を検出
+                                    silence_thresh = -40,       # -40dBFS以下の無音区間を検出
+                                    keep_silence = 100          # ms以上の無音区間を残す
+                                    )
 
             for i, chunk in enumerate(chunks):
                 # ファイルの保存
                 self.saveWav(chunk, basename, i)
 
     def saveWav(self, chunk, basename, i):
-        # ファイル名の設定
-        out_file_name =  basename + '_' + str(i+1) + '.mp3'
 
-        # ファイルの保存
-        chunk.export(self.save_dir + out_file_name, format = 'mp3')
+        # 400ms以上の音声ファイルのみ保存する
+        if len(chunk) > 400:
+            # ファイル名の設定
+            out_file_name =  basename + '_' + str(i+1) + '.mp3'
 
-        # DEBUG
-        print('saved: ' + out_file_name + '.mp3' + ' (' + str(len(chunk)) + 'ms)')
+            # ファイルの保存
+            chunk.export(self.save_dir + out_file_name, format = 'mp3')
+
+            # DEBUG
+            print('saved: ' + out_file_name + ' (' + str(len(chunk) / 1000) + 's)')
 
     def readWavFile(self):
         try:
+            # ファイルの読み込み
             return glob.glob(os.path.join("sndSource", "*.mp3"))
 
         except:
