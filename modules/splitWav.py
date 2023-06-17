@@ -41,10 +41,10 @@ class SplitWav:
         # 400ms以上の音声ファイルのみ保存する
         if len(chunk) > 400:
             # ファイル名の設定
-            out_file_name =  basename + '_' + str(i+1) + '.mp3'
+            out_file_name =  basename + '_' + str(i+1) + '.wav'
 
             # ファイルの保存
-            chunk.export(self.save_dir + out_file_name, format = 'mp3')
+            chunk.export(self.save_dir + out_file_name, format = 'wav')
 
             # DEBUG
             print('saved: ' + out_file_name + ' (' + str(len(chunk) / 1000) + 's)')
